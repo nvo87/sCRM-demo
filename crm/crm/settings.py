@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 if DEBUG:
     INSTALLED_APPS += ['debug_toolbar', ]
 
