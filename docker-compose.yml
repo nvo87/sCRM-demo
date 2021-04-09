@@ -7,9 +7,9 @@ services:
     ports:
       - "8002:8000"
     volumes:
-      - ./crm:/app
+      - ./backend:/app
     command: >
-      sh -c "gunicorn --bind :8000 crm.wsgi:application"
+      sh -c "gunicorn --bind :8000 config.wsgi:application"
     environment:
       - DB_HOST=db
       - DB_NAME=crm

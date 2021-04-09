@@ -12,7 +12,7 @@ RUN apk add --update --no-cache postgresql-client \
 
 RUN mkdir /app
 WORKDIR /app
-COPY ./crm /app
+COPY ./backend /app
 
 RUN adduser -D user
 USER user
