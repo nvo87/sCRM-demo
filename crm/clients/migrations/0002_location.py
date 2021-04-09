@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('clients', '0001_initial'),
     ]
@@ -16,7 +15,8 @@ class Migration(migrations.Migration):
             name='Location',
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(help_text='Ваша арена, стадион, зал, каток.', max_length=64, verbose_name='Название локации')),
+                ('name', models.CharField(help_text='Ваша арена, стадион, зал, каток.', max_length=64,
+                                          verbose_name='Название локации')),
                 ('description', models.CharField(max_length=1024, verbose_name='Краткое описание')),
                 ('slug', autoslug.fields.AutoSlugField(editable=False, populate_from='name', unique_with=['club'])),
                 ('club', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='clients.club')),

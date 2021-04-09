@@ -29,7 +29,6 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-
     class Types(models.TextChoices):
         CLIENT = 'CLIENT', 'Клиент'
         EMPLOYEE = 'EMPLOYEE', 'Сотрудник клуба'

@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ('core', '0001_initial'),
         ('clients', '0002_location'),
@@ -18,12 +17,20 @@ class Migration(migrations.Migration):
                 ('first_name', models.CharField(max_length=64, verbose_name='Имя')),
                 ('last_name', models.CharField(max_length=64, verbose_name='Фамилия')),
                 ('third_name', models.CharField(blank=True, max_length=64, verbose_name='Отчество')),
-                ('phone2', models.CharField(blank=True, db_index=True, help_text='+79871234567', max_length=12, unique=True, verbose_name='Телефон для месенджеров (whatsapp и т.д.)')),
+                ('phone2',
+                 models.CharField(blank=True, db_index=True, help_text='+79871234567', max_length=12, unique=True,
+                                  verbose_name='Телефон для месенджеров (whatsapp и т.д.)')),
                 ('date_of_birth', models.DateField(blank=True, null=True, verbose_name='Дата рождения')),
-                ('photo', models.ImageField(blank=True, default=None, null=True, upload_to='images/clients/', verbose_name='Фото')),
-                ('note', models.CharField(blank=True, help_text='Небольшая пометка по игроку в одно-два слова', max_length=256, verbose_name='Заметка')),
-                ('account', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True, related_name='profile', serialize=False, to='core.clientuser')),
-                ('locations', models.ManyToManyField(blank=True, help_text='Какие катки хоть раз посетил.', to='clients.Location', verbose_name='Доступен в локациях')),
+                ('photo', models.ImageField(blank=True, default=None, null=True, upload_to='images/clients/',
+                                            verbose_name='Фото')),
+                ('note',
+                 models.CharField(blank=True, help_text='Небольшая пометка по игроку в одно-два слова', max_length=256,
+                                  verbose_name='Заметка')),
+                ('account', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, primary_key=True,
+                                                 related_name='profile', serialize=False, to='core.clientuser')),
+                ('locations',
+                 models.ManyToManyField(blank=True, help_text='Какие катки хоть раз посетил.', to='clients.Location',
+                                        verbose_name='Доступен в локациях')),
             ],
             options={
                 'verbose_name': 'Игрок',

@@ -70,4 +70,3 @@ class Client(models.Model):
     def save(self, *args, **kwargs):
         self._format_char_fields()
         super().save(*args, **kwargs)
-

@@ -9,12 +9,13 @@ services:
     volumes:
       - ./crm:/app
     command: >
-      sh -c "gunicorn --bind :8000 --workers 3 crm.wsgi:application"
+      sh -c "gunicorn --bind :8000 crm.wsgi:application"
     environment:
       - DB_HOST=db
       - DB_NAME=crm
       - DB_USER=postgres
       - DB_PASS=pass1
+      - DJANGO_DATABASE=docker
     depends_on:
       - db
 
