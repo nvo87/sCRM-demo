@@ -11,6 +11,8 @@ pytest
 ```
 
 Add `-x` flag for stoping at the first error.  
+` -p no:warnings ` - to hide warnings.
+
 To look at the tests coverage use
 
 ```

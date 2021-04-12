@@ -1,8 +1,11 @@
+import pytest
+
 from django.test import TestCase
 
 from clients.models import Client
 
 
+@pytest.mark.skip(reason="Unresolved model scheme yet.")
 class ClientTestCase(TestCase):
     def setUp(self) -> None:
         self.client = Client.objects.create(

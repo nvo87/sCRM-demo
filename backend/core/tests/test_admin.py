@@ -1,27 +1,26 @@
-from django.contrib.auth import get_user_model
-from django.test import TestCase, Client
+import pytest
 from django.urls import reverse
 
-from core.models import EmployeeUser
+from .conftest import PASSWORD, CLIENT, EMPLOYEE
 
 
-class AdminTests(TestCase):
+def test_superuser_can_login_to_the_admin(django_client, superuser, employee_user) -> None:
+    """ Superuser can view admin pages. """
+    django_client.login(login=superuser.login, password=PASSWORD)
+    url = reverse('admin:core_user_changelist')
+    res = django_client.get(url)
 
-    def setUp(self) -> None:
-        self.django_client = Client()
-        self.admin_user = get_user_model().objects.create_superuser(
-            login='nvo87',
-            password='12345asdASD'
-        )
-        self.django_client.force_login(self.admin_user)
+    assert employee_user.email in str(res.content)
 
-        self.user = EmployeeUser.objects.create_user(
-            email='test1@yandex.ru',
-            password='12345asdASD',
-        )
 
-    def test_users_listed(self):
-        url = reverse('admin:core_user_changelist')
-        res = self.django_client.get(url)
+@pytest.mark.parametrize("user_type", [CLIENT, EMPLOYEE])
+def test_custom_users_cant_login_to_the_admin(django_client, user_type, user) -> None:
+    """ Custom user cant view the admin pages and their are redirected to the login page """
+    _user = user(user_type)
+    django_client.login(login=_user.login, password=PASSWORD)
 
-        self.assertContains(res, self.user.email)
+    url = reverse('admin:core_user_changelist')
+    res = django_client.get(url)
+
+    login_url = reverse('admin:login')
+    assert login_url in res.url
