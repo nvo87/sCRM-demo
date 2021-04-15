@@ -3,16 +3,24 @@ MAINTAINER nvo87
 
 ENV PYTHONUNBUFFERED 1
 
-COPY ./requirements.txt /requirements.txt
 RUN apk add --update --no-cache postgresql-client \
     && apk add --update --no-cache --virtual .tmp-build-deps \
     && apk add gcc libc-dev linux-headers postgresql-dev python3-dev jpeg-dev zlib-dev \
-    && pip install -r /requirements.txt \
     && apk del .tmp-build-deps
 
-RUN mkdir /app
-WORKDIR /app
-COPY ./backend /app
+RUN addgroup workers \
+    && adduser -D worker workers
 
-RUN adduser -D user
-USER user
+COPY ./requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+RUN mkdir -p /worker/app
+RUN mkdir -p /worker/reports
+
+COPY ./.pylintrc /worker/.pylintrc
+COPY ./setup.cfg /worker/setup.cfg
+
+RUN chown worker:workers -R /worker
+
+USER worker
+WORKDIR /worker/app

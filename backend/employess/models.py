@@ -1,9 +1,13 @@
+""" Логика по работе с сотрудниками клуба. """
+
 from django.db import models
 
 from core.models import EmployeeUser
 
 
 class Employee(models.Model):
+    """ Сотрудник клуба имеет допуск в клубный интерфейс CRM.
+    Сотрудник может относится к разным ролям и иметь соответсвующие права. """
     first_name = models.CharField('Имя', max_length=64)
     last_name = models.CharField('Фамилия', max_length=64)
     third_name = models.CharField('Отчество', max_length=64, blank=True)

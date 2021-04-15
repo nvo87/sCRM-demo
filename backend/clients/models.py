@@ -1,3 +1,5 @@
+""" Набор основных моделей для app Clients. """
+
 from django.db import models
 from autoslug import AutoSlugField
 
@@ -6,12 +8,15 @@ from core.models import ClientUser
 
 
 class Club(models.Model):
+    """ Клубом может быть спорт.секция, команда, школа или клуб.
+    К клубу относятся сотрудники (Employee), локации (Location) и мероприятия (Event).
+    Игрок попавший хотя бы на одно мероприятие клуба - становится Клиентом (Client). """
     title = models.CharField('Название клуба', max_length=256)
     logo = models.ImageField('Логотип клуба', )
 
     def save(self, *args, **kwargs):
         self.title = self.title.title()
-        super(Club, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.title
@@ -22,6 +27,7 @@ class Club(models.Model):
 
 
 class Location(models.Model):
+    """ Локацией может быть каток, зал и т.д. - любое место для проведения мероприятий (тренировок). """
     club = models.ForeignKey(Club, on_delete=models.CASCADE)
     name = models.CharField('Название локации', max_length=64, help_text='Ваша арена, стадион, зал, каток.')
     description = models.CharField('Краткое описание', max_length=1024)
@@ -36,6 +42,8 @@ class Location(models.Model):
 
 
 class Client(models.Model):
+    """ Клиент - это игрок, хотя бы раз попавший на мероприятие клуба. Он может чистлится в разных клубах.
+    В каждом клубе игрок может показываться в разных локациях. """
     first_name = models.CharField('Имя', max_length=64)
     last_name = models.CharField('Фамилия', max_length=64)
     third_name = models.CharField('Отчество', max_length=64, blank=True)
@@ -61,6 +69,7 @@ class Client(models.Model):
         return self.account.phone
 
     def _format_char_fields(self) -> None:
+        """ Преобразовывает строковые поля к нужному виду. """
         self.first_name = self.first_name.title() if self.first_name else None
         self.last_name = self.last_name.title() if self.last_name else None
         self.third_name = self.third_name.title() if self.third_name else None

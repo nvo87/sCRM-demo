@@ -1,28 +1,41 @@
-COMPOSE=docker-compose -f docker-compose.yml
-RUN=$(COMPOSE) exec -T app
-RUN_DB=$(COMPOSE) exec -T db
+RUN=docker-compose exec -T app
+REPORT_DIR=./reports
+MSG_TEMPLATE='\"{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}\"'
 DJANGO_SETTINGS_MODULE=config.settings
 
 
-.PHONY: rebuild stop start restart manage tests psql
+.PHONY: rebuild stop start restart manage tests pylint pycodestyle lint
+
 
 start:
-	$(COMPOSE) up -d --build --remove-orphans
+	docker-compose up -d --build --remove-orphans
 
 stop:
-	 $(COMPOSE) down
+	 docker-compose down
 
-rebuild:
-	 $(COMPOSE) down && ${COMPOSE} up -d --build --remove-orphans
+rebuild: stop start
 
 restart:
-	 $(COMPOSE) stop && ${COMPOSE} up -d --remove-orphans
+	 docker-compose stop && docker-compose up -d --remove-orphans
 
 manage:
 	 $(RUN) python ./manage.py $(filter-out $@,$(MAKECMDGOALS)) --settings=$(DJANGO_SETTINGS_MODULE)
 
 tests:
-	 $(RUN) pytest
+	mkdir -p ${REPORT_DIR} && \
+	$(RUN) pytest
+
+pycodestyle:
+		mkdir -p ${REPORT_DIR} && \
+		$(RUN) sh -c "pycodestyle ./ " \
+		| tee ${REPORT_DIR}/pycodestyle.report
+
+pylint:
+		mkdir -p ${REPORT_DIR} && \
+		$(RUN) sh -c "pylint ./**/*.py --rcfile=../.pylintrc -j 0 --msg-template=${MSG_TEMPLATE}" \
+		| tee ${REPORT_DIR}/pylint.report
+
+lint: pycodestyle pylint
 
 psql:
 	$(RUN_DB) psql -U postgres -w

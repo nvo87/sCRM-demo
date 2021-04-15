@@ -1,3 +1,13 @@
+# TODO Оставить данный файл только для работы с юзерами и переименовать в models/user.py
+"""
+    Описывает работу с пользователями CRM. Причина создания своей модели юзера - это аккаунты нескольких типов.
+    Могут быть как аккаунты для игроков, так и для сотрудников. Вход в каждый аккаунт выполняется с разными полями
+    (напр. клиенты - через телефон, сотрудники - через почту). У каждого типа аккаунта доступ к разным интерфейсам CRM.
+    Для этого реализована одна центральная модель User. От нее наследуются прокси-модели для отдельного типа аккаунта.
+    Логика разделения доступов и прав ложится на группы, к которым относится конкретный аккаунт.
+"""
+from typing import Optional
+
 from django.contrib.auth.base_user import BaseUserManager
 from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group
 from django.db import models
@@ -7,9 +17,19 @@ from common.utils import format_phone_to_rus_code
 
 
 class UserManager(BaseUserManager):
+    """ Реализует методы для работы с базовой моделью User.
+    Является суперклассом для менеджеров от более специфичных пользователей (сотрудник клуба или клиент).
+    """
 
-    def create_user(self, login, password, **extra_fields):
-        """ Creates and saves a new user """
+    def create_user(self, login: str, password: str, **extra_fields) -> 'User':
+        """ Дает возможность создать пользователя в самом общем виде и с любыми полями, напрямую через поле login.
+        Данный метод можно использовать для создания аккаунта разработчиков сотрудников CRM.
+
+        :param login: уникальный идентификатор пользователя
+        :param password: пароль
+        :param extra_fields: доп. атрибуты пользователя, которые будут сохранены при создании
+        :return: User
+        """
         if not password:
             raise ValueError('Password is empty.')
 
@@ -19,7 +39,15 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, login, password, **extra_fields):
+    def create_superuser(self, login: str, password: str, **extra_fields) -> 'User':
+        """
+        Создает пользователя с правами superuser.
+
+        :param login: уникальный идентификатор пользователя
+        :param password: пароль
+        :param extra_fields: доп. атрибуты пользователя, которые будут сохранены при создании
+        :return: User
+        """
         user = self.create_user(login, password, **extra_fields)
         user.is_superuser = True
         user.is_staff = True
@@ -29,7 +57,14 @@ class UserManager(BaseUserManager):
 
 
 class User(AbstractBaseUser, PermissionsMixin):
+    """
+    Базовая модель пользователя. Может быть несколько типов аккаунтов, напр. сотрудники и клиенты.
+    Здесь реализована базовая логика для всех типов аккаунтов. Для конкретного типа аккаунта наследуется своя
+    proxy модель.
+    """
+
     class Types(models.TextChoices):
+        """ Типы пользователей - по ним создаются группы с разрешениями или определяется логика авторизации. """
         CLIENT = 'CLIENT', 'Клиент'
         EMPLOYEE = 'EMPLOYEE', 'Сотрудник клуба'
 
@@ -46,10 +81,11 @@ class User(AbstractBaseUser, PermissionsMixin):
                                               'Только Сотрудник сервиса может сделать вновь активным.')
     date_joined = models.DateTimeField('Дата создания аккаунта', default=timezone.now)
 
-    # the name USERNAME_FIELD (e.g. not LOGIN_FIELD) are used, because AbstractBaseUser uses it.
+    # исп. именно имя USERNAME_FIELD (напр. не LOGIN_FIELD)
+    # т.к. AbstractBaseUser использует его во многих своих методах.
     USERNAME_FIELD = 'login'
-    # DEFAULT_GROUP_NAME used in childs classes for users with types
-    DEFAULT_GROUP_NAME = None
+
+    DEFAULT_GROUP_NAME = None  # сопоставляет в какую группу попадает юзер при создании. Используется в дочерних классах
 
     objects = UserManager()
 
@@ -57,22 +93,15 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name = "Аккаунт"
         verbose_name_plural = "Аккаунты"
 
-    def _check_required_fields_is_not_empty(self) -> None:
-        for field in self.REQUIRED_FIELDS:
-            if not getattr(self, field):
-                raise ValueError("The '%s' field is required." % field)
-
     def save(self, *args, **kwargs):
-        self._check_required_fields_is_not_empty()
-
         self.phone = format_phone_to_rus_code(self.phone) if self.phone else None
         self.email = self.__class__.objects.normalize_email(self.email) if self.email else None
 
         return super().save(*args, **kwargs)
 
     @property
-    def default_group(self):
-        """ The group which user with type should belongs to. """
+    def default_group(self) -> Optional[Group]:
+        """ Группа, к которой пользователь по умолчанию относится после создания. """
         try:
             return Group.objects.get(name=self.DEFAULT_GROUP_NAME)
         except Group.DoesNotExist:
@@ -86,18 +115,23 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 
 class UserWithTypeManager(UserManager):
+    """ Менеджер для пользователей с аккаунтом определенного типа. В зависимости от модели, из которой вызывается
+    менеджер, будет возвращена логика для этого типа аккаунта. """
+
     def get_queryset(self):
         return super().get_queryset().filter(groups=self.model().default_group)
 
     def create_superuser(self, login, password, **extra_fields):
         raise NotImplementedError(f'{self.model().DEFAULT_GROUP_NAME} User cannot create superusers. ')
 
-    def _create_user_obj(self, **fields):
+    def _create_user_obj(self, **fields) -> User:
         """
-        Returns the user object which is ready to be saved.
-        In **fields you have to specify all fields from USERNAME_FIELD and REQUIRED_FIELDS model attributes.
-        Value from USERNAME_FIELD are going to save as login field.
+        Возвращает объект User, готовый к сохранению.
+
+        :param fields: передаются все поля из атрибутов USERNAME_FIELD и REQUIRED_FIELDS модели. Значение из
+                        USERNAME_FIELD будет взято для поля login.
         """
+
         login = fields.get(self.model().USERNAME_FIELD, None)
         if not login:
             raise ValueError(f'You need to specify {self.model().USERNAME_FIELD} field value '
@@ -113,7 +147,16 @@ class UserWithTypeManager(UserManager):
 
         return user
 
-    def create_user(self, password, **fields):
+    def create_user(self, password, **fields) -> 'User':  # pylint: disable=arguments-differ
+        """
+        Создает и сохраняет юзера для аккаунта определенного типа. В зависимости от модели юзера, в **fields передаются
+        поля, которые необходимы данной модели. Поэтому в качестве обязательных параметров используется только password.
+
+        :param password: пароль
+        :param fields: значения полей из REQUIRED_FIELDS модели, плюс любые другие поля.
+        :return: User
+        """
+
         if not password:
             raise ValueError('Password is empty.')
 
@@ -129,22 +172,30 @@ class UserWithTypeManager(UserManager):
 
 
 class EmployeeUser(User):
+    """
+    Аккаунты Сотрудников.
+    """
+
     class Meta:
         proxy = True
 
     objects = UserWithTypeManager()
 
-    DEFAULT_GROUP_NAME = User.Types.EMPLOYEE.label
+    DEFAULT_GROUP_NAME = User.Types.EMPLOYEE.label  # pylint: disable=no-member
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['email']
 
 
 class ClientUser(User):
+    """
+    Аккаунты Клиентов.
+    """
+
     class Meta:
         proxy = True
 
     objects = UserWithTypeManager()
 
-    DEFAULT_GROUP_NAME = User.Types.CLIENT.label
+    DEFAULT_GROUP_NAME = User.Types.CLIENT.label  # pylint: disable=no-member
     USERNAME_FIELD = 'phone'
     REQUIRED_FIELDS = ['phone']
