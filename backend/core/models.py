@@ -13,7 +13,8 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin, Group
 from django.db import models
 from django.utils import timezone
 
-from common.utils import format_phone_to_rus_code
+from common.utils import clean_phone_to_rus_format
+from common.validators import validate_phone
 
 
 class UserManager(BaseUserManager):
@@ -72,7 +73,7 @@ class User(AbstractBaseUser, PermissionsMixin):
                              help_text='Ваш идентификатор, например, email или телефон, '
                                        'по которому вас зарегистрировали')
     phone = models.CharField('Номер телефона', max_length=12, unique=True, null=True, blank=True,
-                             help_text='+79871234567')
+                             validators=[validate_phone], help_text='+79871234567')
     email = models.EmailField('Email', unique=True, null=True, blank=True, )
     is_staff = models.BooleanField('Технический Сотрудник сервиса', default=False,
                                    help_text='Определяет, может ли юзер иметь доступ в суперадминку.')
@@ -93,11 +94,11 @@ class User(AbstractBaseUser, PermissionsMixin):
         verbose_name = "Аккаунт"
         verbose_name_plural = "Аккаунты"
 
-    def save(self, *args, **kwargs):
-        self.phone = format_phone_to_rus_code(self.phone) if self.phone else None
+    def clean_fields(self, exclude=None):
+        self.phone = clean_phone_to_rus_format(self.phone) if self.phone else None
         self.email = self.__class__.objects.normalize_email(self.email) if self.email else None
 
-        return super().save(*args, **kwargs)
+        return super().clean_fields(exclude=None)
 
     @property
     def default_group(self) -> Optional[Group]:

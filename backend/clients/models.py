@@ -3,7 +3,7 @@
 from django.db import models
 from autoslug import AutoSlugField
 
-from common.utils import format_phone_to_rus_code
+from common.utils import clean_phone_to_rus_format
 from core.models import ClientUser
 
 
@@ -74,7 +74,7 @@ class Client(models.Model):
         self.last_name = self.last_name.title() if self.last_name else None
         self.third_name = self.third_name.title() if self.third_name else None
         self.note = str(self.note).lower() if self.note else None
-        self.phone2 = format_phone_to_rus_code(self.phone2) if self.phone2 else None
+        self.phone2 = clean_phone_to_rus_format(self.phone2) if self.phone2 else None
 
     def save(self, *args, **kwargs):
         self._format_char_fields()

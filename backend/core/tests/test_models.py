@@ -1,5 +1,6 @@
 import pytest
 from django.contrib.auth import authenticate
+from django.core.exceptions import ValidationError
 
 from .conftest import SUPERUSER, STAFF, CLIENT, EMPLOYEE, PASSWORD
 from ..models import EmployeeUser, User
@@ -65,3 +66,26 @@ def test_employee_manager_cant_create_superuser() -> None:
             login='user123',
             password=PASSWORD
         )
+
+
+@pytest.mark.parametrize("raw_phone,clean_phone", [
+    ('+71234567890', '+71234567890'),
+    ('1234567890', '+71234567890'),
+    ('81234567890', '+71234567890'),
+    ('8-(123)-456-78-90', '+71234567890'),
+    ('+7-(123)-456-78-90', '+71234567890'),
+    ('', None),
+    (None, None),
+])
+def test_clean_phone_field(raw_phone, clean_phone, client_user) -> None:
+    client_user.phone = raw_phone
+    client_user.clean_fields()
+    client_user.save()
+    assert client_user.phone == clean_phone
+
+
+@pytest.mark.parametrize("bad_phone", ['+712345678901', '123456789', '8-(123)-456-78-'])
+def test_clean_phone_field_raises_error(bad_phone, client_user) -> None:
+    client_user.phone = bad_phone
+    with pytest.raises(ValidationError):
+        client_user.clean_fields()
