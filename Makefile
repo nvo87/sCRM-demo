@@ -4,7 +4,7 @@ MSG_TEMPLATE='\"{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}\"'
 DJANGO_SETTINGS_MODULE=config.settings
 
 
-.PHONY: rebuild stop start restart manage tests pylint pycodestyle lint
+.PHONY: rebuild stop start restart manage tests pylint pycodestyle lint precommit psql makemigrations migrate
 
 
 start:
@@ -21,6 +21,12 @@ restart:
 manage:
 	 $(RUN) python ./manage.py $(filter-out $@,$(MAKECMDGOALS)) --settings=$(DJANGO_SETTINGS_MODULE)
 
+makemigrations:
+	$(RUN) python ./manage.py makemigrations
+
+migrate:
+	$(RUN) python ./manage.py migrate
+
 tests:
 	mkdir -p ${REPORT_DIR} && \
 	$(RUN) pytest
@@ -36,6 +42,8 @@ pylint:
 		| tee ${REPORT_DIR}/pylint.report
 
 lint: pycodestyle pylint
+
+precommit: tests lint
 
 psql:
 	$(RUN_DB) psql -U postgres -w
