@@ -6,6 +6,8 @@ from django.urls import include, path
 import debug_toolbar
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('__debug__/', include(debug_toolbar.urls)),
-] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+                  path('admin/', admin.site.urls),
+                  path('__debug__/', include(debug_toolbar.urls)),
+                  path('accounts/', include('allauth.urls')),
+                  path('api/v1/', include('core.urls')),
+              ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

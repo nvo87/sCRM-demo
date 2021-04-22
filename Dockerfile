@@ -1,4 +1,4 @@
-FROM python:3.7-alpine
+FROM python:3.8.8-alpine
 MAINTAINER nvo87
 
 ENV PYTHONUNBUFFERED 1
@@ -6,6 +6,7 @@ ENV PYTHONUNBUFFERED 1
 RUN apk add --update --no-cache postgresql-client \
     && apk add --update --no-cache --virtual .tmp-build-deps \
     && apk add gcc libc-dev linux-headers postgresql-dev python3-dev jpeg-dev zlib-dev \
+    && apk add libffi-dev openssl-dev rust cargo \
     && apk del .tmp-build-deps
 
 RUN addgroup workers \
