@@ -21,3 +21,7 @@ services:
     image: postgres:10-alpine
     env_file:
       - .docker/db.env
+    volumes:
+      - ./db:/var/lib/postgresql/data
+    ports:
+      - '5432'
