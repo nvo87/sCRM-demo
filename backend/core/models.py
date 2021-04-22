@@ -115,6 +115,23 @@ class User(AbstractBaseUser, PermissionsMixin):
         group.user_set.add(self)
 
 
+class Profile(models.Model):
+    """ Персональные данные владельца аккаунта. Данные, участвующие в аутентификации находятся в модели User. """
+    user = models.OneToOneField(User, primary_key=True, on_delete=models.CASCADE, related_name='profile',
+                                help_text='Связанный аккаунт')
+    first_name = models.CharField('Имя', max_length=64)
+    last_name = models.CharField('Фамилия', max_length=64)
+    third_name = models.CharField('Отчество', max_length=64)
+
+    @property
+    def email(self):
+        return self.user.email
+
+    @property
+    def phone(self):
+        return self.user.phone
+
+
 class UserWithTypeManager(UserManager):
     """ Менеджер для пользователей с аккаунтом определенного типа. В зависимости от модели, из которой вызывается
     менеджер, будет возвращена логика для этого типа аккаунта. """
@@ -172,9 +189,16 @@ class UserWithTypeManager(UserManager):
         return user
 
 
+class EmployeeRoles(models.Choices):
+    """ Сотрудники выполняют определенные роли. Для каждой роли создается одноименная группа в auth.Group. """
+    DIRECTOR = 'DIRECTOR', 'Директор'
+    ADMIN = 'ADMIN', 'Администратор'
+    COACH = 'COACH', 'Тренер'
+
+
 class EmployeeUser(User):
     """
-    Аккаунты Сотрудников.
+    Аккаунты Сотрудников - прокси-модель для User, хранит логику для юзеров принадлежащих типу (группе) Employee.
     """
 
     class Meta:

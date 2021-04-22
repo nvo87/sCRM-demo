@@ -1,9 +1,10 @@
 import pytest
 from django.contrib.auth import authenticate
+from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 
 from .conftest import SUPERUSER, STAFF, CLIENT, EMPLOYEE, PASSWORD
-from ..models import EmployeeUser, User
+from ..models import EmployeeUser, User, EmployeeRoles
 
 
 def test_is_superuser(superuser) -> None:
@@ -89,3 +90,9 @@ def test_clean_phone_field_raises_error(bad_phone, client_user) -> None:
     client_user.phone = bad_phone
     with pytest.raises(ValidationError):
         client_user.clean_fields()
+
+
+def test_groups_from_employee_roles_exists():
+    """ Проверяем, что были созданы все группы для ролей Сотрудников. """
+    for role in EmployeeRoles:
+        assert Group.objects.get(name=role.label)
