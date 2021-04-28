@@ -8,7 +8,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('core', '0005_profile'),
+        ('accounts', '0005_profile'),
     ]
 
     operations = [
@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=256, verbose_name='Название клуба')),
                 ('logo', models.ImageField(blank=True, default=None, null=True, upload_to='images/clients/', verbose_name='Логотип клуба')),
-                ('clients', models.ManyToManyField(related_name='play_in_clubs', to='core.ClientUser', verbose_name='Клиенты')),
-                ('employees', models.ManyToManyField(related_name='work_in_clubs', to='core.EmployeeUser', verbose_name='Сотрудники')),
+                ('clients', models.ManyToManyField(related_name='play_in_clubs', to='accounts.ClientUser', verbose_name='Клиенты')),
+                ('employees', models.ManyToManyField(related_name='work_in_clubs', to='accounts.EmployeeUser', verbose_name='Сотрудники')),
             ],
             options={
                 'verbose_name': 'Клуб',

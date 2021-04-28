@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 'indexes': [],
                 'constraints': [],
             },
-            bases=('core.user',),
+            bases=('accounts.user',),
         ),
         migrations.CreateModel(
             name='EmployeeUser',
@@ -68,6 +68,6 @@ class Migration(migrations.Migration):
                 'indexes': [],
                 'constraints': [],
             },
-            bases=('core.user',),
+            bases=('accounts.user',),
         ),
     ]

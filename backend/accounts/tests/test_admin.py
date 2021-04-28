@@ -7,7 +7,7 @@ from .conftest import PASSWORD, CLIENT, EMPLOYEE
 def test_superuser_can_login_to_the_admin(django_client, superuser, employee_user) -> None:
     """ Superuser can view admin pages. """
     django_client.login(login=superuser.login, password=PASSWORD)
-    url = reverse('admin:core_user_changelist')
+    url = reverse('admin:accounts_user_changelist')
     res = django_client.get(url)
 
     assert employee_user.email in str(res.content)
@@ -19,7 +19,7 @@ def test_custom_users_cant_login_to_the_admin(django_client, user_type, user) ->
     _user = user(user_type)
     django_client.login(login=_user.login, password=PASSWORD)
 
-    url = reverse('admin:core_user_changelist')
+    url = reverse('admin:accounts_user_changelist')
     res = django_client.get(url)
 
     login_url = reverse('admin:login')

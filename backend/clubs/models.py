@@ -3,7 +3,7 @@
 
 from django.db import models
 
-from core.models import ClientUser, EmployeeUser
+from accounts.models import ClientUser, EmployeeUser
 
 
 class Club(models.Model):

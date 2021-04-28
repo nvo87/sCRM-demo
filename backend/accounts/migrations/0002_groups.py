@@ -1,11 +1,11 @@
 from django.db import migrations
 
-from core.models import User
+from accounts.models import User
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('core', '0001_initial'),
+        ('accounts', '0001_initial'),
     ]
 
     def create_default_group(apps, schema_editor):

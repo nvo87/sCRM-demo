@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0004_alter_user_phone'),
+        ('accounts', '0004_alter_user_phone'),
     ]
 
     operations = [
@@ -16,7 +16,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('user',
                  models.OneToOneField(help_text='Связанный аккаунт', on_delete=django.db.models.deletion.CASCADE,
-                                      primary_key=True, related_name='profile', serialize=False, to='core.user')),
+                                      primary_key=True, related_name='profile', serialize=False, to='accounts.user')),
                 ('first_name', models.CharField(max_length=64, verbose_name='Имя')),
                 ('last_name', models.CharField(max_length=64, verbose_name='Фамилия')),
                 ('third_name', models.CharField(max_length=64, verbose_name='Отчество')),

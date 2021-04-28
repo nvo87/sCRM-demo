@@ -1,7 +1,7 @@
 import pytest
 from django.test import Client as DjangoClient
 
-from core.models import User, EmployeeUser, ClientUser
+from ..models import User, EmployeeUser, ClientUser
 
 SUPERUSER = 0
 STAFF = 1
