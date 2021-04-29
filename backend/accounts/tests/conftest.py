@@ -1,5 +1,7 @@
 import pytest
+from allauth.account.models import EmailAddress
 from django.test import Client as DjangoClient
+from rest_framework.test import APIClient
 
 from ..models import User, EmployeeUser, ClientUser
 
@@ -14,6 +16,18 @@ PASSWORD = '123qweQWE'
 @pytest.fixture(autouse=True)
 def enable_db_access(db):  # pylint: disable=unused-argument
     pass
+
+
+@pytest.fixture()
+def disable_account_email_verification(settings):
+    settings.ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+
+@pytest.fixture()
+def enable_account_email_verification(settings):
+    settings.ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
+    settings.ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+    settings.ACCOUNT_EMAIL_CONFIRMATION_ANONYMOUS_REDIRECT_URL = 'api/v1/employee/login'
 
 
 @pytest.fixture
@@ -56,6 +70,16 @@ def employee_user() -> EmployeeUser:
 
 
 @pytest.fixture
+def verified_employee_user() -> EmployeeUser:
+    user = EmployeeUser.objects.create_user(
+        email='employee_test_verified@test.ru',
+        password=PASSWORD
+    )
+    EmailAddress.objects.create(user=user, email=user.email, primary=True, verified=True)
+    return user
+
+
+@pytest.fixture
 def client_user() -> ClientUser:
     return ClientUser.objects.create_user(
         phone='+79051234567',
@@ -66,3 +90,8 @@ def client_user() -> ClientUser:
 @pytest.fixture
 def django_client() -> DjangoClient:
     return DjangoClient()
+
+
+@pytest.fixture
+def api_client() -> APIClient:
+    return APIClient()

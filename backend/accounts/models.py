@@ -37,6 +37,7 @@ class UserManager(BaseUserManager):
         user = self.model(login=login.lower(), **extra_fields)
         user.set_password(raw_password=password)
         user.save(using=self._db)
+        Profile.objects.create(user=user)
 
         return user
 
@@ -184,6 +185,7 @@ class UserWithTypeManager(UserManager):
         user.is_superuser = False
         user.save(using=self._db)
 
+        Profile.objects.create(user=user)
         user.add_to_default_group()
 
         return user

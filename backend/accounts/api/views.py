@@ -15,6 +15,7 @@ class EmployeeLoginView(LoginView):
     serializer_class = EmployeeLoginSerializer
 
 
-class UserProfileViewset(viewsets.ModelViewSet):
+class UserProfileViewSet(viewsets.ModelViewSet):
     serializer_class = UserProfileSerializer
     queryset = Profile.objects.all()
+    http_method_names = ['get', 'put']
