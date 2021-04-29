@@ -18,3 +18,4 @@ pre-commit>=2.12.0
 djangorestframework>=3.12.4,<3.13
 dj-rest-auth
 django-allauth
+drf-yasg

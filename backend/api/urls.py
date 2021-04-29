@@ -1,13 +1,27 @@
 from allauth.account.views import confirm_email as allauth_confirm_email
 from dj_rest_auth.views import PasswordResetConfirmView
+from drf_yasg import openapi
+from drf_yasg.views import get_schema_view
 
 from django.urls import path, include
 from django.http import HttpResponse
+from rest_framework import permissions
 
 
 def empty_view(request):
     """ Заглушка пустого view, для того чтобы отрабатывали некоторые роуты не требующие рендеринга. """
     return HttpResponse('')
+
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title='sCRM API',
+        description='API для подключения клиента',
+        default_version='1',
+    ),
+    public=True,
+    permission_classes=(permissions.IsAuthenticated,),
+)
 
 
 urlpatterns = [
@@ -21,4 +35,6 @@ urlpatterns = [
     # работает по аналогии с account_confirm_email. В POST запросе надо выслать uid, token, password1, password2
     path('password/reset/confirm/<uidb64>/<token>/', PasswordResetConfirmView.as_view(),
          name='password_reset_confirm'),
+
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
