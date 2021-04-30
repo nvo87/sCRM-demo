@@ -1,9 +1,9 @@
 """  Клубом может быть спорт.секция, команда, школа или клуб.
 """
-
+from django.contrib.auth.models import Group
 from django.db import models
 
-from accounts.models import ClientUser, EmployeeUser
+from accounts.models import ClientUser, EmployeeUser, User
 
 
 class Club(models.Model):
@@ -23,3 +23,14 @@ class Club(models.Model):
     class Meta:
         verbose_name = "Клуб"
         verbose_name_plural = "Клубы"
+
+
+class Membership(models.Model):
+    """ Определяет в каких клубах какую роль выполняет каждый юзер. """
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='membership')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='membership')
+    club = models.ForeignKey(Club, on_delete=models.CASCADE, null=True, related_name='membership')
+
+    class Meta:
+        db_table = 'clubs_user_groups'
+        unique_together = ('group', 'user', 'club')

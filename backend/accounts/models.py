@@ -70,6 +70,14 @@ class User(AbstractBaseUser, PermissionsMixin):
         CLIENT = 'CLIENT', 'Клиент'
         EMPLOYEE = 'EMPLOYEE', 'Сотрудник клуба'
 
+    groups = models.ManyToManyField(
+        Group, verbose_name='Группы', blank=True,
+        related_name="user_set", related_query_name="user",
+        through='clubs.Membership', through_fields=('user', 'group'),
+        help_text='Группы к которым пренадлежит юзер. По ним '
+                  'определяется набор разрешений для юзера',
+    )
+
     login = models.CharField('Логин', max_length=150, unique=True, blank=True,
                              help_text='Ваш идентификатор, например, email или телефон, '
                                        'по которому вас зарегистрировали')
