@@ -4,7 +4,7 @@ MSG_TEMPLATE='\"{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}\"'
 DJANGO_SETTINGS_MODULE=config.settings
 
 
-.PHONY: rebuild stop start restart manage tests pylint pycodestyle lint precommit psql makemigrations migrate
+.PHONY: rebuild stop start restart manage tests pylint pycodestyle lint precommit psql makemigrations migrate local-env
 
 
 start:
@@ -47,3 +47,6 @@ precommit: tests lint
 
 psql:
 	$(RUN_DB) psql -U postgres -w
+
+local-env:
+	. .local/loadenv.sh

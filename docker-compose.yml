@@ -24,4 +24,4 @@ services:
     volumes:
       - ./db:/var/lib/postgresql/data
     ports:
-      - '5432'
+      - 54321:5432
