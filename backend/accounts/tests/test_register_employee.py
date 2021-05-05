@@ -5,7 +5,7 @@ from django.conf import settings
 from django.urls import reverse
 from rest_framework import status
 
-from accounts.tests.conftest import PASSWORD
+from conftest import PASSWORD
 
 
 @patch("allauth.account.utils.send_email_confirmation")
@@ -48,9 +48,9 @@ def test_activate_user_with_correct_link(employee_user, django_client, enable_ac
 def test_cannot_activate_with_invalid_link(employee_user, django_client, enable_account_email_verification):
     """ Проверяем, что юзер не может активировать аккаунт по неверной ссылке """
 
-    EmailAddress.objects.create(user=employee_user,
-                                                email=employee_user.email,
-                                                verified=False, primary=True)
+    EmailAddress.objects.create(
+        user=employee_user, email=employee_user.email, verified=False, primary=True
+    )
     key = 'invalid_key'
     url = reverse('account_confirm_email', args=[key])
     data = {'key': key}

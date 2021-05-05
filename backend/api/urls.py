@@ -6,6 +6,10 @@ from drf_yasg.views import get_schema_view
 from django.urls import path, include
 from django.http import HttpResponse
 from rest_framework import permissions
+from rest_framework.routers import DefaultRouter
+
+from accounts.urls import router as accounts_router
+from clubs.urls import router as clubs_router
 
 
 def empty_view(request):
@@ -23,9 +27,15 @@ schema_view = get_schema_view(
     permission_classes=(permissions.IsAuthenticated,),
 )
 
+router = DefaultRouter()
+router.registry.extend(accounts_router.registry)
+router.registry.extend(clubs_router.registry)
 
 urlpatterns = [
+    path('', include(router.urls)),
     path('', include('accounts.urls')),
+    path('', include('clubs.urls')),
+
     path('', include('dj_rest_auth.urls')),
     # данный УРЛ используется для генерации письма со ссылкой на подтверждение и для верификации email по ключу <key>.
     # настройками в settings.py верификацию можно сделать по GET или POST запросу, и добавить редирект в случае успеха.

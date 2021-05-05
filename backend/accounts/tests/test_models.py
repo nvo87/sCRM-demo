@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate
 from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 
-from .conftest import SUPERUSER, STAFF, CLIENT, EMPLOYEE, PASSWORD
+from conftest import SUPERUSER, STAFF, CLIENT, EMPLOYEE, PASSWORD
 from ..models import EmployeeUser, User, EmployeeRoles
 
 

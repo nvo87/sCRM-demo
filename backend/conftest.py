@@ -3,7 +3,7 @@ from allauth.account.models import EmailAddress
 from django.test import Client as DjangoClient
 from rest_framework.test import APIClient
 
-from ..models import User, EmployeeUser, ClientUser
+from accounts.models import User, EmployeeUser, ClientUser
 
 SUPERUSER = 0
 STAFF = 1

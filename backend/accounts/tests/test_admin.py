@@ -1,7 +1,7 @@
 import pytest
 from django.urls import reverse
 
-from .conftest import PASSWORD, CLIENT, EMPLOYEE
+from conftest import PASSWORD, CLIENT, EMPLOYEE
 
 
 def test_superuser_can_login_to_the_admin(django_client, superuser, employee_user) -> None:
