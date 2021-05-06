@@ -19,3 +19,4 @@ djangorestframework>=3.12.4,<3.13
 dj-rest-auth
 django-allauth
 drf-yasg
+django-webpack-loader

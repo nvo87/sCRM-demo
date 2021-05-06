@@ -2,7 +2,17 @@
 
 CRM for hockey sport-sections and clubs.
 
-# Tests
+## Installation
+### Frontend
+To install frontend, check - frontend/README.md
+
+### Backend
+```
+make rebuild
+```
+visit - http://127.0.0.1:8002/
+
+## Tests
 
 We are using Pytest and coverage. To run the test use
 
